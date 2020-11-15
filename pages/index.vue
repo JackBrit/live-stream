@@ -1,102 +1,67 @@
 <template>
   <div class="container">
-    <div>
-      <h1 class="title">
-        live-stream
-      </h1>
-      <video-player  class="video-player-box"
-                 ref="videoPlayer"
-                 :options="playerOptions"
-      >
-  </video-player>
+    <div class="container-inner">
+      <VideoPlayer v-if="streamUrl" :streamUrl="streamUrl" />
+      <script v-if="!hideChat" id="cid0020000266467327920" data-cfasync="false" async src="//st.chatango.com/js/gz/emb.js" style="width: 100%;height: 100%;">
+        {"handle":"streamscancometrue","arch":"js","styles":{"a":"000000","b":100,"c":"FFFFFF","d":"FFFFFF","k":"000000","l":"000000","m":"000000","n":"FFFFFF","p":"10","q":"000000","r":100,"surl":0,"fwtickm":1}}
+      </script>
     </div>
   </div>
 </template>
 
 <script>
-import 'video.js/dist/video-js.css'
-import { videoPlayer } from 'vue-video-player'
+import {
+  mapState,
+  mapMutations
+} from 'vuex'
+
+import VideoPlayer from '@/components/VideoPlayer'
+import fitvids from 'fitvids'
 
 export default {
   components: {
-    videoPlayer
+    VideoPlayer
   },
-  data() {
-      return {
-        playerOptions: {
-          // videojs options
-          muted: true,
-          language: 'en',
-          playbackRates: [0.7, 1.0, 1.5, 2.0],
-          sources: [{
-            type: "video/mp4",
-            src: "https://cdn.theguardian.tv/webM/2015/07/20/150716YesMen_synd_768k_vp8.webm"
-          }]
-        }
-      }
-    },
-    mounted() {
-      console.log('this is current player instance object', this.player)
-    },
-    computed: {
-      player() {
-        return this.$refs.videoPlayer.player
-      }
-    },
-    methods: {
-      // listen event
-      onPlayerPlay(player) {
-        // console.log('player play!', player)
-      },
-      onPlayerPause(player) {
-        // console.log('player pause!', player)
-      },
-      // ...player event
-
-      // or listen state event
-      playerStateChanged(playerCurrentState) {
-        // console.log('player current update state', playerCurrentState)
-      },
-
-      // player is ready
-      playerReadied(player) {
-        console.log('the player is readied', player)
-        // you can use it to do something...
-        // player.[methods]
-      }
-    }
+  computed: {
+    ...mapState({
+      streamUrl: state => state.video.streamURL,
+      hideChat: state => state.ui.hideChat
+    }),
+    ...mapMutations({
+      toggleChat: 'ui/TOGGLE_CHAT'
+    })
+  },
+  async asyncData({ store }) {
+    const streamUrl = await store.dispatch('video/fetchStream');
+  },
+  mounted() {
+    fitvids()
+  }
 }
 </script>
 
 <style>
 .container {
   margin: 0 auto;
-  min-height: 100vh;
+  height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
   text-align: center;
+  flex-direction: column;
 }
 
-.title {
-  font-family: 'Quicksand', 'Source Sans Pro', -apple-system, BlinkMacSystemFont,
-    'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  display: block;
-  font-weight: 300;
-  font-size: 100px;
-  color: #35495e;
-  letter-spacing: 1px;
+.container-inner {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  height: 80vh;
+  width: 80%;
 }
 
-.subtitle {
-  font-weight: 300;
-  font-size: 42px;
-  color: #526488;
-  word-spacing: 5px;
-  padding-bottom: 15px;
-}
-
-.links {
-  padding-top: 15px;
+#cid0020000266467327920 {
+  height: 100%;
 }
 </style>
